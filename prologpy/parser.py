@@ -1,9 +1,10 @@
 import re
-from prologpy.interpreter import Conjunction, Variable, Term, TRUE, Rule
+from prologpy.interpreter import Conjunction, Variable, Term, TRUE, Rule, Addition
 
 
-TOKEN_REGEX = r"[A-Za-z0-9_]+|:\-|[()\.,]"
-ATOM_NAME_REGEX = r"^[A-Za-z0-9_]+$"
+TOKEN_REGEX = r"[A-Za-z0-9_]+|:\-|[()\.,\+]"
+ATOM_NAME_REGEX = r"^[A-Za-z_0-9]+$"
+INTEGER_REGEX = r"^[0-9]+$"
 VARIABLE_REGEX = r"^[A-Z_][A-Za-z0-9_]*$"
 
 # Regex to parse comment strings. The first group captures quoted strings (
@@ -100,13 +101,23 @@ class Parser(object):
 
             return variable
 
-        # If there are no arguments to process, return an atom. Atoms are processed
-        # as terms without arguments.
+        # If there are no arguments to process, return an atom. Atoms are
+        # processed as terms without arguments.
         if self._current != "(":
+            if re.match(INTEGER_REGEX, functor) is not None:
+                return self._parse_arithmatic(functor)
             return Term(functor)
         self._pop_current()
         arguments = self._parse_arguments()
         return Term(functor, arguments)
+
+    def _parse_arithmatic(self, head):
+        if self._current == "+":
+            self._pop_current()
+            head = Term(head, None, int(head))
+            tail = self._parse_term()
+            return Addition(head, tail)
+        return Term(head, None, int(head))
 
     def _parse_arguments(self):
         arguments = []
@@ -115,9 +126,7 @@ class Parser(object):
         while self._current != ")":
             arguments.append(self._parse_term())
             if self._current not in (",", ")"):
-                raise Exception(
-                    "Expected , or ) in term but got " + str(self._current)
-                )
+                raise Exception("Expected , or ) in term but got " + str(self._current))
             if self._current == ",":
                 self._pop_current()
         self._pop_current()
@@ -133,9 +142,7 @@ class Parser(object):
             return Rule(head, TRUE())
 
         if self._current != ":-":
-            raise Exception(
-                "Expected :- in rule but got " + str(self._current)
-            )
+            raise Exception("Expected :- in rule but got " + str(self._current))
 
         self._pop_current()
 
@@ -146,9 +153,7 @@ class Parser(object):
             arguments.append(self._parse_term())
 
             if self._current not in (",", "."):
-                raise Exception(
-                    "Expected , or . in term but got " + str(self._current)
-                )
+                raise Exception("Expected , or . in term but got " + str(self._current))
 
             if self._current == ",":
                 self._pop_current()

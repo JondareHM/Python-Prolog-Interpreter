@@ -9,11 +9,14 @@ class Term(object):
     called a functor and mark and michael are arguments.
     """
 
-    def __init__(self, functor, arguments=None):
+    def __init__(self, functor, arguments=None, value=None):
         if not arguments:
             arguments = []
+        if not value:
+            value = None
         self.functor = functor
         self.arguments = arguments
+        self.value = value
 
     def match_variable_bindings(self, other_term):
         """Return a map of matching variable bindings"""
@@ -28,18 +31,16 @@ class Term(object):
         if isinstance(other_term, Term):
 
             # Verify that the functor and argument lengths match.
-            if self.functor != other_term.functor or len(
-                self.arguments
-            ) != len(other_term.arguments):
+            if self.functor != other_term.functor or len(self.arguments) != len(
+                other_term.arguments
+            ):
                 return None
 
             # Zip the current term and the other term arguments and combine the
             # results into one list. Zip creates a new list filled with tuples
             # containing the matching elements from the 2 argument lists. i.e. zip ([
             # 1, 2, 3],[4, 5, 6]) returns [(1, 4), (2, 5), (3, 6)]
-            zipped_argument_list = list(
-                zip(self.arguments, other_term.arguments)
-            )
+            zipped_argument_list = list(zip(self.arguments, other_term.arguments))
 
             # Get the matched variable bindings list for the matching arguments in
             # our 2 terms and merge them.
@@ -52,9 +53,7 @@ class Term(object):
             # The reduce function applies a rolling computation to sequential pairs
             # of values in a list. i.e. reduce((lambda x, y: x + y), [1, 2, 3,
             # 4]) returns 10
-            return reduce(
-                Database.merge_bindings, [{}] + matched_argument_var_bindings
-            )
+            return reduce(Database.merge_bindings, [{}] + matched_argument_var_bindings)
 
     def substitute_variable_bindings(self, variable_bindings):
         """Take the variable bindings map and return a term with all occurrences of
@@ -129,9 +128,7 @@ class Variable(object):
         bound_variable_value = variable_bindings.get(self)
 
         if bound_variable_value:
-            return bound_variable_value.substitute_variable_bindings(
-                variable_bindings
-            )
+            return bound_variable_value.substitute_variable_bindings(variable_bindings)
 
         return self
 
@@ -157,6 +154,13 @@ class Rule(object):
 
     def __repr__(self):
         return str(self)
+
+
+class Addition(Term):
+    def __init__(self, head, tail):
+        self.head = head
+        self.tail = tail
+        super().__init__("+", None, head.value + tail.value)
 
 
 class Conjunction(Term):
@@ -194,14 +198,11 @@ class Conjunction(Term):
                 # bindings, and if we have matching items, keep searching the
                 # database by iterating over our next conjunction arguments
                 for item in database.query(
-                    current_term.substitute_variable_bindings(
-                        variable_bindings
-                    )
+                    current_term.substitute_variable_bindings(variable_bindings)
                 ):
 
                     combined_variable_bindings = Database.merge_bindings(
-                        current_term.match_variable_bindings(item),
-                        variable_bindings,
+                        current_term.match_variable_bindings(item), variable_bindings,
                     )
 
                     if combined_variable_bindings is not None:
@@ -256,9 +257,7 @@ class Database(object):
 
             # We obtain the map containing our shared rule head and goal variable
             # bindings, and process the matching results if there are any to process.
-            matching_head_var_bindings = rule.head.match_variable_bindings(
-                goal
-            )
+            matching_head_var_bindings = rule.head.match_variable_bindings(goal)
 
             if matching_head_var_bindings is not None:
 
