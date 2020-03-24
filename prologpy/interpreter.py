@@ -9,14 +9,11 @@ class Term(object):
     called a functor and mark and michael are arguments.
     """
 
-    def __init__(self, functor, arguments=None, value=None):
+    def __init__(self, functor, arguments=None):
         if not arguments:
             arguments = []
-        if not value:
-            value = None
         self.functor = functor
         self.arguments = arguments
-        self.value = value
 
     def match_variable_bindings(self, other_term):
         """Return a map of matching variable bindings"""
@@ -71,6 +68,16 @@ class Term(object):
     def query(self, database):
         """Query the database for terms matching this one"""
         yield from database.query(self)
+
+    def check_term_validity(self):
+        """
+        Checks that the term is valid, with an int as the final argument
+        """
+
+        if isinstance(self.arguments[self.arguments - 1], Integer) is False:
+            return False
+
+        return True
 
     def __str__(self):
         return (
@@ -156,11 +163,9 @@ class Rule(object):
         return str(self)
 
 
-class Addition(Term):
-    def __init__(self, head, tail):
-        self.head = head
-        self.tail = tail
-        super().__init__("+", None, head.value + tail.value)
+class Integer(object):
+    def __init__(self, value):
+        self.value = int(value)
 
 
 class Conjunction(Term):
@@ -246,6 +251,21 @@ class Database(object):
 
     def __init__(self, rules):
         self.rules = rules
+
+    def check_rules_validity(self):
+        """
+        Checks that all terms in the rules database has an int as the final
+        argument.
+        """
+
+        for rule in self.rules:
+            if (
+                isinstance(rule.tail.arguments[rule.tail.arguments - 1], Integer)
+                is False
+            ):
+                return False
+
+        return True
 
     def query(self, goal):
         """Return a generator that iterates over all of the terms matching the given

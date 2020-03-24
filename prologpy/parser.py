@@ -1,5 +1,5 @@
 import re
-from prologpy.interpreter import Conjunction, Variable, Term, TRUE, Rule, Addition
+from prologpy.interpreter import Conjunction, Variable, Term, TRUE, Rule, Integer
 
 
 TOKEN_REGEX = r"[A-Za-z0-9_]+|:\-|[()\.,\+]"
@@ -101,23 +101,19 @@ class Parser(object):
 
             return variable
 
+        if re.match(INTEGER_REGEX, functor) is not None:
+
+            integer = Integer(functor)
+
+            return integer
+
         # If there are no arguments to process, return an atom. Atoms are
         # processed as terms without arguments.
         if self._current != "(":
-            if re.match(INTEGER_REGEX, functor) is not None:
-                return self._parse_arithmatic(functor)
             return Term(functor)
         self._pop_current()
         arguments = self._parse_arguments()
         return Term(functor, arguments)
-
-    def _parse_arithmatic(self, head):
-        if self._current == "+":
-            self._pop_current()
-            head = Term(head, None, int(head))
-            tail = self._parse_term()
-            return Addition(head, tail)
-        return Term(head, None, int(head))
 
     def _parse_arguments(self):
         arguments = []

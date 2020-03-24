@@ -14,7 +14,13 @@ class Solver(object):
         """Parse the query text and use our database rules to search for matching
         query solutions. """
 
+        if self.database.check_rules_validity() is False:
+            raise Exception("Rule didn't have integer as final argument")
+
         query = Parser(query_text).parse_query()
+
+        if query.check_term_validity() is False:
+            raise Exception("Query term didn't have integer as final argument")
 
         query_variable_map = {}
         variables_in_query = False

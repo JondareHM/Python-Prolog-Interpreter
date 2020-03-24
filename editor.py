@@ -25,23 +25,15 @@ class Editor(object):
 
         # Create a rule label
 
-        self.rule_editor_label = Label(
-            root, text="Prolog Rules: ", padx=10, pady=1
-        )
+        self.rule_editor_label = Label(root, text="Prolog Rules: ", padx=10, pady=1)
 
-        self.rule_editor_label.grid(
-            sticky="W", row=0, column=0, columnspan=2, pady=3
-        )
+        self.rule_editor_label.grid(sticky="W", row=0, column=0, columnspan=2, pady=3)
 
         # Create rule editor where we can edit the rules we want to enter:
 
-        self.rule_editor = ScrolledText(
-            root, width=100, height=30, padx=10, pady=10
-        )
+        self.rule_editor = ScrolledText(root, width=100, height=30, padx=10, pady=10)
 
-        self.rule_editor.grid(
-            sticky=W + E, row=1, column=0, columnspan=2, padx=10
-        )
+        self.rule_editor.grid(sticky=W + E, row=1, column=0, columnspan=2, padx=10)
 
         self.rule_editor.config(wrap="word", undo=True)
 
@@ -76,9 +68,7 @@ class Editor(object):
 
         # Create a solutions label
 
-        self.solutions_label = Label(
-            root, text="Query Solutions:", padx=10, pady=1
-        )
+        self.solutions_label = Label(root, text="Query Solutions:", padx=10, pady=1)
 
         self.solutions_label.grid(
             sticky="W", row=4, column=0, columnspan=2, padx=10, pady=3
@@ -90,9 +80,7 @@ class Editor(object):
             root, width=100, height=5, padx=10, pady=10
         )
 
-        self.solutions_display.grid(
-            row=5, column=0, columnspan=2, padx=10, pady=7
-        )
+        self.solutions_display.grid(row=5, column=0, columnspan=2, padx=10, pady=7)
 
         # Finally, let's create the file menu
         self.menu_bar = self.create_file_menu()
@@ -105,22 +93,16 @@ class Editor(object):
 
         file_menu = Menu(menu_bar, tearoff=0)
 
-        file_menu.add_command(
-            label="Open...", underline=1, command=self.open_file
-        )
+        file_menu.add_command(label="Open...", underline=1, command=self.open_file)
         file_menu.add_separator()
-        file_menu.add_command(
-            label="Save", underline=1, command=self.save_file
-        )
+        file_menu.add_command(label="Save", underline=1, command=self.save_file)
         file_menu.add_command(
             label="Save As...", underline=5, command=self.save_file_as
         )
         file_menu.add_separator()
         file_menu.add_command(label="Run", underline=1, command=self.run_query)
         file_menu.add_separator()
-        file_menu.add_command(
-            label="Exit", underline=2, command=self.root.destroy
-        )
+        file_menu.add_command(label="Exit", underline=2, command=self.root.destroy)
 
         menu_bar.add_cascade(label="File", underline=0, menu=file_menu)
 
