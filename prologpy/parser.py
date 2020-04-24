@@ -1,5 +1,5 @@
 import re
-from prologpy.interpreter import Conjunction, Variable, Term, TRUE, Rule, Integer
+from prologpy.interpreter import Conjunction, Variable, Term, TRUE, Rule, Timestamp
 
 
 TOKEN_REGEX = r"[A-Za-z0-9_]+|:\-|[()\.,\+]"
@@ -99,13 +99,30 @@ class Parser(object):
                 self._scope[functor] = Variable(functor)
                 variable = self._scope[functor]
 
+            # If the variable is followed by a +,
+            # it means it's part of a timestamp
+            if self._current == "+":
+                self._pop_current()
+                integer = self._parse_atom()
+                if re.match(INTEGER_REGEX, integer) is not None:
+
+                    timestamp = Timestamp(variable, integer)
+
+                    return timestamp
+
+            # Similarly, if the variable is the last argument,
+            # it has to be the timestamp
+            if self._current == ")":
+                timestamp = Timestamp(variable)
+                return timestamp
+
             return variable
 
         if re.match(INTEGER_REGEX, functor) is not None:
 
-            integer = Integer(functor)
+            timestamp = Timestamp(functor)
 
-            return integer
+            return timestamp
 
         # If there are no arguments to process, return an atom. Atoms are
         # processed as terms without arguments.
@@ -121,8 +138,10 @@ class Parser(object):
         # parenthesis ')'
         while self._current != ")":
             arguments.append(self._parse_term())
-            if self._current not in (",", ")"):
-                raise Exception("Expected , or ) in term but got " + str(self._current))
+            if self._current not in (",", ")", "+"):
+                raise Exception(
+                    "Expected , or ) or + in term but got " + str(self._current)
+                )
             if self._current == ",":
                 self._pop_current()
         self._pop_current()
@@ -148,7 +167,7 @@ class Parser(object):
         while self._current != ".":
             arguments.append(self._parse_term())
 
-            if self._current not in (",", "."):
+            if self._current not in (",", ".", "+"):
                 raise Exception("Expected , or . in term but got " + str(self._current))
 
             if self._current == ",":

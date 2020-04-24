@@ -74,7 +74,7 @@ class Term(object):
         Checks that the term is valid, with an int as the final argument
         """
 
-        if isinstance(self.arguments[self.arguments - 1], Integer) is False:
+        if isinstance(self.arguments[self.arguments - 1], Timestamp) is False:
             return False
 
         return True
@@ -163,8 +163,13 @@ class Rule(object):
         return str(self)
 
 
-class Integer(object):
-    def __init__(self, value):
+class Timestamp(object):
+    def __init__(self, variable=None, value=None):
+        if not variable:
+            self.variable = 0
+        if not value:
+            self.value = 0
+        self.variable = variable
         self.value = int(value)
 
 
@@ -260,7 +265,7 @@ class Database(object):
 
         for rule in self.rules:
             if (
-                isinstance(rule.tail.arguments[rule.tail.arguments - 1], Integer)
+                isinstance(rule.tail.arguments[rule.tail.arguments - 1], Timestamp)
                 is False
             ):
                 return False
