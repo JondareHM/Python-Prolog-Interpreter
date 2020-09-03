@@ -1,4 +1,4 @@
-from prologpy.interpreter import Database, Variable
+from prologpy.interpreter import Database, Variable, Timestamp
 from prologpy.parser import Parser
 from collections import defaultdict
 
@@ -32,6 +32,9 @@ class Solver(object):
             if isinstance(argument, Variable):
                 variables_in_query = True
                 query_variable_map[argument.name] = argument
+            if isinstance(argument, Timestamp) and argument.variable != 0:
+                variables_in_query = True
+                query_variable_map[argument.variable.name] = argument.variable
 
         # Return a generator which iterates over the terms matching our query
         matching_query_terms = [item for item in self.database.query(query)]

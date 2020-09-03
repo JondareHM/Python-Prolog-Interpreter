@@ -164,13 +164,36 @@ class Rule(object):
 
 
 class Timestamp(object):
-    def __init__(self, variable=None, value=None):
+    def __init__(self, value, variable=None):
         if not variable:
             self.variable = 0
-        if not value:
-            self.value = 0
+            self.name = value
+        self.name = variable.name
         self.variable = variable
         self.value = int(value)
+
+    def match_variable_bindings(self, other_term):
+        """ If the passed in term doesn't represent the same variable, we bind our
+        current variable to the outer term and return the mapped binding. """
+        bindings = {}
+
+        if self != other_term:
+            bindings[self] = other_term
+
+        return bindings
+
+    def substitute_variable_bindings(self, variable_bindings):
+        """Fetch the currently bound variable value for our variable and return the
+        substituted bindings if our variable is mapped. If our variable isn't mapped,
+        we simply return the variable as the substitute. """
+        bound_variable_value = variable_bindings.get(self)
+
+        if bound_variable_value:
+            if self.value != bound_variable_value.value:
+                bound_variable_value.value = self.value - bound_variable_value.value
+            return bound_variable_value.substitute_variable_bindings(variable_bindings)
+
+        return self
 
 
 class Conjunction(Term):

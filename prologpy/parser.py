@@ -99,21 +99,22 @@ class Parser(object):
                 self._scope[functor] = Variable(functor)
                 variable = self._scope[functor]
 
-            # If the variable is followed by a +,
+            # If the variable is followed by a + or a -,
             # it means it's part of a timestamp
-            if self._current == "+":
-                self._pop_current()
+            if self._current in ["+", "-"]:
+                mark = self._pop_current()
                 integer = self._parse_atom()
                 if re.match(INTEGER_REGEX, integer) is not None:
-
-                    timestamp = Timestamp(variable, integer)
+                    if mark == "-":
+                        integer = integer * -1
+                    timestamp = Timestamp(integer, variable)
 
                     return timestamp
 
             # Similarly, if the variable is the last argument,
             # it has to be the timestamp
             if self._current == ")":
-                timestamp = Timestamp(variable)
+                timestamp = Timestamp(0, variable)
                 return timestamp
 
             return variable
@@ -138,7 +139,7 @@ class Parser(object):
         # parenthesis ')'
         while self._current != ")":
             arguments.append(self._parse_term())
-            if self._current not in (",", ")", "+"):
+            if self._current not in (",", ")"):
                 raise Exception(
                     "Expected , or ) or + in term but got " + str(self._current)
                 )
