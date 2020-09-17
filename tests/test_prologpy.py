@@ -27,10 +27,10 @@ def test_actual_example():
 
     rules_text = """
 
-        flag(X, T + 0) :- temp(X, high, T + 0).
-        cool(X, T + 1) :- flag(X, T + 0), flag(X, T + 1).
-        shdn(X, T + 1) :- cool(X, T + 0), flag(X, T + 1).
-        malf(X, T - 2) :- shdn(X, T + 0).
+        flag(X, T) :- temp(X, high, T).
+        cool(X, T + 1) :- flag(X, T), flag(X, T + 1).
+        shdn(X, T + 1) :- cool(X, T), flag(X, T + 1).
+        malf(X, T - 2) :- shdn(X, T).
 
         temp(wt25, high, 0).
         temp(wt25, high, 1).
@@ -40,7 +40,7 @@ def test_actual_example():
 
     goal_text = """
 
-        malf(X, T + 0).
+        malf(X, T).
 
     """
 
