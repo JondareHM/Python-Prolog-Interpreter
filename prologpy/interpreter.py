@@ -74,7 +74,7 @@ class Term(object):
         Checks that the term is valid, with an int as the final argument
         """
 
-        if isinstance(self.arguments[self.arguments - 1], Timestamp) is False:
+        if isinstance(self.arguments[len(self.arguments) - 1], Timestamp) is False:
             return False
 
         return True
@@ -168,8 +168,9 @@ class Timestamp(object):
         if not variable:
             self.variable = 0
             self.name = value
-        self.name = variable.name
-        self.variable = variable
+        else:
+            self.name = variable.name
+            self.variable = variable
         self.value = int(value)
 
     def match_variable_bindings(self, other_term):
@@ -288,7 +289,7 @@ class Database(object):
 
         for rule in self.rules:
             if (
-                isinstance(rule.tail.arguments[rule.tail.arguments - 1], Timestamp)
+                isinstance(rule.head.arguments[len(rule.head.arguments) - 1], Timestamp)
                 is False
             ):
                 return False

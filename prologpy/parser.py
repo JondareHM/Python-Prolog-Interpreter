@@ -2,11 +2,10 @@ import re
 from prologpy.interpreter import Conjunction, Variable, Term, TRUE, Rule, Timestamp
 
 
-TOKEN_REGEX = r"[A-Za-z0-9_]+|:\-|[()\.,\+]"
+TOKEN_REGEX = r"[A-Za-z0-9_]+|:\-|[()\.,\+-]"
 ATOM_NAME_REGEX = r"^[A-Za-z_0-9]+$"
 INTEGER_REGEX = r"^[0-9]+$"
 VARIABLE_REGEX = r"^[A-Z_][A-Za-z0-9_]*$"
-
 # Regex to parse comment strings. The first group captures quoted strings (
 # double and single). The second group captures regular comments ('%' for
 # single-line or '/* */' for multi-line)
@@ -106,7 +105,7 @@ class Parser(object):
                 integer = self._parse_atom()
                 if re.match(INTEGER_REGEX, integer) is not None:
                     if mark == "-":
-                        integer = integer * -1
+                        integer = int(integer) * -1
                     timestamp = Timestamp(integer, variable)
 
                     return timestamp
@@ -114,7 +113,7 @@ class Parser(object):
             # Similarly, if the variable is the last argument,
             # it has to be the timestamp
             if self._current == ")":
-                timestamp = Timestamp(0, variable)
+                timestamp = Timestamp("0", variable)
                 return timestamp
 
             return variable
