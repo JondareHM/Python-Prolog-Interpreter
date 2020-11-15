@@ -2,6 +2,8 @@ from tkinter import Tk, Text, Menu, filedialog, Label, Button, END, W, E, FALSE
 from tkinter.scrolledtext import ScrolledText
 from prologpy.solver import Solver
 
+timestamp = 0
+
 
 def is_file_path_selected(file_path):
     return file_path is not None and file_path != ""
@@ -9,7 +11,7 @@ def is_file_path_selected(file_path):
 
 def get_file_contents(file_path):
     """Return a string containing the file contents of the file located at the
-    specified file path """
+    specified file path"""
     with open(file_path, encoding="utf-8") as f:
         file_contents = f.read()
 
@@ -87,7 +89,7 @@ class Editor(object):
 
     def create_file_menu(self):
         """Create a menu which will allow us to open / save our Prolog rules, run our
-        query, and exit our editor interface """
+        query, and exit our editor interface"""
 
         menu_bar = Menu(root)
 
@@ -120,7 +122,7 @@ class Editor(object):
 
     def run_query(self):
         """Interpret the entered rules and query and display the results in the
-        solutions text box """
+        solutions text box"""
 
         # Delete all of the text in our solutions display text box
         self.solutions_display.delete("1.0", END)
@@ -172,7 +174,7 @@ class Editor(object):
 
     def handle_exception(self, error_message, exception=""):
         """Handle the exception by printing an error message as well as exception in
-        our solution text editor / display """
+        our solution text editor / display"""
         self.solutions_display.insert(END, error_message + "\n")
         self.solutions_display.insert(END, str(exception) + "\n")
         self.set_not_busy()
@@ -197,7 +199,7 @@ class Editor(object):
 
     def save_file(self):
         """If we have specified a file path, save the file - otherwise, prompt the
-        user to specify the file location prior to saving the file """
+        user to specify the file location prior to saving the file"""
         if self.file_path is None:
             result = self.save_file_as()
         else:

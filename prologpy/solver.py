@@ -10,9 +10,11 @@ class Solver(object):
         rules = Parser(rules_text).parse_rules()
         self.database = Database(rules)
 
-    def find_solutions(self, query_text):
+    def find_solutions(self, query_text, data_format):
         """Parse the query text and use our database rules to search for matching
-        query solutions. """
+        query solutions."""
+        global data_formats
+        data_formats = Parser(data_format).parse_query()
 
         if self.database.check_rules_validity() is False:
             raise Exception("Rule didn't have integer as final argument")
