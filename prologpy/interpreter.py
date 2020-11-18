@@ -117,6 +117,7 @@ class TRUE(Term):
 
     def substitute_variable_bindings(self, variable_bindings):
         # Simply return our truth term since there is nothing to bind
+        print("self (TRUE)" + str(self))
         return self
 
     def query(self, database):
@@ -192,8 +193,8 @@ class Timestamp(object):
         current variable to the outer term and return the mapped binding."""
         bindings = {}
 
-        if self.value != other_term.value:
-            bindings[self] = other_term
+        if self.variable != other_term.variable:
+            bindings[self.variable] = other_term
 
         return bindings
 
@@ -201,7 +202,7 @@ class Timestamp(object):
         """Fetch the currently bound variable value for our variable and return the
         substituted bindings if our variable is mapped. If our variable isn't mapped,
         we simply return the variable as the substitute."""
-        bound_variable_value = variable_bindings.get(self)
+        bound_variable_value = variable_bindings.get(self.variable)
         print("self " + str(self))
         print("bound_variable_value " + str(bound_variable_value))
 
@@ -213,12 +214,15 @@ class Timestamp(object):
         return self
 
     def __str__(self):
-        if self.value > 0:
+        if self.value >= 0:
             str_mark = "+"
         else:
             return str(self.name) + " " + str(self.value)
         if self.value != 0:
             return str(self.name) + " " + str_mark + " " + str(self.value)
+        else:
+            if self.value == 0:
+                return str(self.name)
         return str(self.name)
 
     def __repr__(self):
@@ -352,6 +356,7 @@ class Database(object):
                     matching_head_var_bindings
                 )
 
+                print("Bindings: " + str(matching_head_var_bindings))
                 print("matched_tail_item: " + str(matched_tail_item))
                 # Query the database for the substituted tail items matching our rules
                 for matching_item in matched_tail_item.query(self):
